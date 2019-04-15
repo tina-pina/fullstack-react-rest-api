@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
 
+
+import { Route } from 'react-router-dom';
+
 class Header extends Component {
     constructor() {
         super();
@@ -9,7 +12,11 @@ class Header extends Component {
         };
     }
 
+
     render() {
+
+
+
         return (
             <div className="header">
                 <div className="bounds">
@@ -17,6 +24,7 @@ class Header extends Component {
                     <nav>
                         <NavLink className="signup" exact to="/signup">Sign Up</NavLink>
                         <NavLink className="signin" exact to="/signin">Sign In</NavLink>
+                        {/* <NavLink className="signout" exact to="/">Sign Out</NavLink> */}
                     </nav>
                 </div>
             </div>

@@ -64,7 +64,7 @@ router.get('/users', [authenticateUser], (req, res) => {
 });
 
 // Create new user
-router.post("/users", [
+router.post('/users', [
     check('firstName')
         .exists({ checkNull: true, checkFalsy: true })
         .withMessage('Please provide a value for "first name"'),
@@ -106,17 +106,6 @@ router.post("/users", [
 });
 
 
-// Returns a list of courses
-router.get("/courses", function (req, res, next) {
-    Course.find({})
-        //execute query and call callback function
-        .exec(function (err, courses) {
-            if (err) return next(err);
-            // send back to client
-            res.json(courses)
-        })
-})
-
 // Returns a the course (including the user that owns the course) for the provided course ID
 router.param("ID", function (req, res, next, id) {
     Course.findById(id, function (err, doc) {
@@ -135,7 +124,7 @@ router.param("ID", function (req, res, next, id) {
 router.get('/courses', (req, res, next) => {
     Course.find({}, { title: true, description: true, user: true })
         .exec(function (err, courses) {
-            if (err) return next(err);
+            if (err) next(err);
             res.json(courses)
         });
 });

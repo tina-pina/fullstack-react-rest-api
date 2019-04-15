@@ -1,11 +1,57 @@
+
 import React, { Component } from 'react';
+import { NavLink } from 'react-router-dom';
+
+let base64 = require('base-64');
 
 class UserSignIn extends Component {
     constructor() {
         super();
         this.state = {
-
+            // user: {},
+            username: "",
+            password: ""
         };
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleEmail = this.handleEmail.bind(this);
+        this.handlePassword = this.handlePassword.bind(this)
+    }
+
+    handleEmail(event) {
+        let username = event.target.value
+        this.setState({ username: username })
+    }
+
+    handlePassword(event) {
+        let password = event.target.value
+        this.setState({ password: password })
+    }
+
+    handleChangeCancel(event) {
+        // console.log("cancel clicked");
+        window.location = '/'
+        event.preventDefault();
+    }
+
+
+    handleSubmit(event) {
+        let username = this.state.username
+        let password = this.state.password
+
+        let headers = new Headers();
+        headers.append('Authorization', 'Basic ' + base64.encode(username + ":" + password));
+        fetch('http://localhost:5000/api/users', { headers: headers, method: 'GET' })
+            .then(response => response.json())
+            .then(userData => {
+                console.log("this is userData", userData)
+            })
+            .catch(error => {
+                console.log('Error fetching and parsing data', error);
+            });
+
+        /* ToDO redirect user to main screen */
+
+        event.preventDefault();
     }
 
     render() {
@@ -13,15 +59,20 @@ class UserSignIn extends Component {
             <div className="bounds">
                 <div className="grid-33 centered signin">
                     <h1>Sign In</h1>
-                    <form>
+                    <form onSubmit={this.handleSubmit}>
                         <div>
-                            <input id="emailAddress" name="emailAddress" type="text" className="" placeholder="Email Address" value=""></input>
+                            <input id="emailAddress" name="emailAddress" type="text" className="emailAddress" placeholder="Email Address" onChange={this.handleEmail}></input>
                         </div>
-                        <div><input id="password" name="password" type="password" className="" placeholder="Password" value=""></input></div>
-                        <div className="grid-100 pad-bottom"><button className="button" type="submit">Sign In</button><button className="button button-secondary" onclick="event.preventDefault(); location.href='index.html';">Cancel</button></div>
+                        <div>
+                            <input id="password" name="password" type="password" className="password" placeholder="Password" onChange={this.handlePassword}></input>
+                        </div>
+                        <div className="grid-100 pad-bottom">
+                            <button className="button" type="submit">Sign In</button>
+                            <button className="button button-secondary" onClick={this.handleChangeCancel}>Cancel</button>
+                        </div>
                     </form>
                     <p>&nbsp;</p>
-                    <p>Don't have a user account? <a href="sign-up.html">Click here</a> to sign up!</p>
+                    <p>Don't have a user account? <a href="signup">Click here</a> to sign up!</p>
                 </div>
             </div>
         )
@@ -29,6 +80,3 @@ class UserSignIn extends Component {
 }
 
 export default UserSignIn;
-
-
-
