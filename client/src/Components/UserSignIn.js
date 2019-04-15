@@ -1,6 +1,8 @@
 
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
+import { withRouter } from 'react-router';
+
 
 let base64 = require('base-64');
 
@@ -8,13 +10,13 @@ class UserSignIn extends Component {
     constructor() {
         super();
         this.state = {
-            // user: {},
             username: "",
             password: ""
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleEmail = this.handleEmail.bind(this);
         this.handlePassword = this.handlePassword.bind(this)
+        this.handleChangeCancel = this.handleChangeCancel.bind(this)
     }
 
     handleEmail(event) {
@@ -28,10 +30,10 @@ class UserSignIn extends Component {
     }
 
     handleChangeCancel(event) {
-        // console.log("cancel clicked");
-        window.location = '/'
+        this.props.history.push('/');
         event.preventDefault();
     }
+
 
 
     handleSubmit(event) {
@@ -44,6 +46,8 @@ class UserSignIn extends Component {
             .then(response => response.json())
             .then(userData => {
                 console.log("this is userData", userData)
+                this.props.userStateUpdate(true, userData.firstName)
+                this.props.history.push('/');
             })
             .catch(error => {
                 console.log('Error fetching and parsing data', error);
@@ -79,4 +83,4 @@ class UserSignIn extends Component {
     }
 }
 
-export default UserSignIn;
+export default withRouter(UserSignIn);

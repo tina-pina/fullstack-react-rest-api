@@ -14,16 +14,40 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 class App extends Component {
 
   // Update the React App component to call the REST API to get a list of courses and render the results.
+  constructor() {
+    super();
+    this.state = {
+      userLoggedIn: false,
+      userName: ""
+    }
+    this.updateUserLoggedIn = this.updateUserLoggedIn.bind(this);
+    this.signOutClicked = this.signOutClicked.bind(this);
+  }
+
+  updateUserLoggedIn(value, name) {
+    this.setState({ userLoggedIn: value, userName: name })
+  }
+
+  signOutClicked(ev, value, name) {
+    ev.preventDefault()
+    // console.log("clicked")
+    this.setState({ userLoggedIn: value, userName: name })
+  }
 
   render() {
     return (
       <BrowserRouter>
         <div>
-          <Header />
+          <Header
+            userLoggedIn={this.state.userLoggedIn}
+            userName={this.state.userName}
+            signOut={this.signOutClicked} />
           <Switch>
             <Route exact path="/" component={Courses} />
-            <Route exact path="/signup" component={UserSignUp} />
-            <Route exact path="/signin" component={UserSignIn} />
+            <Route exact path="/signup"
+              render={() => <UserSignUp userStateUpdate={this.updateUserLoggedIn} />} />
+            <Route exact path="/signin"
+              render={() => <UserSignIn userStateUpdate={this.updateUserLoggedIn} />} />
             <Route exact path="/courses/:id" component={CourseDetail} />
             <Route exact path="/courses/create" component={CreateCourse} />
           </Switch>

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router';
 
 class UserSignUp extends Component {
     constructor() {
@@ -17,6 +18,7 @@ class UserSignUp extends Component {
         this.handlePassword = this.handlePassword.bind(this);
         this.handleConfirmPassword = this.handleConfirmPassword.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleChangeCancel = this.handleChangeCancel.bind(this);
     }
 
     handleSubmit(event) {
@@ -45,7 +47,8 @@ class UserSignUp extends Component {
             })
                 .then(response => response.json())
                 .then(userData => {
-                    console.log("this is userData", userData)
+                    this.props.userStateUpdate(true, this.state.firstName)
+                    this.props.history.push('/');
                 })
                 .catch(error => {
                     console.log('Error fetching and parsing data', error);
@@ -85,6 +88,11 @@ class UserSignUp extends Component {
         this.setState({ confirmPassword: confirmPassword })
     }
 
+    handleChangeCancel(event) {
+        this.props.history.push('/');
+        event.preventDefault();
+    }
+
     render() {
         return (
             <div className="bounds">
@@ -98,7 +106,10 @@ class UserSignUp extends Component {
                             <div><input id="password" name="password" type="password" className="" placeholder="Password" onChange={this.handlePassword}></input></div>
                             <div><input id="confirmPassword" name="confirmPassword" type="password" className="" placeholder="Confirm Password" onChange={this.handleConfirmPassword}
                             ></input></div>
-                            <div className="grid-100 pad-bottom"><button className="button" type="submit">Sign Up</button><button className="button button-secondary">Cancel</button></div>
+                            <div className="grid-100 pad-bottom">
+                                <button className="button" type="submit">Sign Up</button>
+                                <button className="button button-secondary" onClick={this.handleChangeCancel}>Cancel</button>
+                            </div>
                         </form>
                     </div>
                     <p>&nbsp;</p>
@@ -109,4 +120,4 @@ class UserSignUp extends Component {
     }
 }
 
-export default UserSignUp;
+export default withRouter(UserSignUp);
