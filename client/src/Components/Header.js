@@ -15,8 +15,8 @@ class Header extends Component {
                 <div className="bounds">
                     <h1 className="header--logo">Courses</h1>
                     <nav>
-                        <NavLink className="signup" exact to="/sign-up">Sign Up</NavLink>
-                        <NavLink className="signin" exact to="/sign-in">Sign In</NavLink>
+                        <NavLink className="signup" exact to="/signup">Sign Up</NavLink>
+                        <NavLink className="signin" exact to="/signin">Sign In</NavLink>
                     </nav>
                 </div>
             </div>
