@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
-// import Header from './Components/Header';
 
 class Courses extends Component {
 
@@ -16,8 +15,10 @@ class Courses extends Component {
         fetch('http://localhost:5000/api/courses')
             .then(response => response.json())
             .then(coursesListData => {
-                console.log(coursesListData)
+                // console.log("courses", coursesListData)
+                this.props.getIdUsers(coursesListData)
                 this.setState({ coursesList: coursesListData })
+
             })
             .catch(error => {
                 console.log('Error fetching and parsing data', error);
@@ -57,5 +58,5 @@ class Courses extends Component {
         )
     }
 }
-        
+
 export default Courses;

@@ -1,7 +1,7 @@
 
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 
 
 let base64 = require('base-64');
@@ -47,13 +47,15 @@ class UserSignIn extends Component {
             .then(userData => {
                 console.log("this is userData", userData)
                 this.props.userStateUpdate(true, userData.firstName)
+                this.props.userAuthentication(true, userData.emailAddress, userData.password)
+                /* redirect user to main screen */
                 this.props.history.push('/');
             })
             .catch(error => {
                 console.log('Error fetching and parsing data', error);
             });
 
-        /* ToDO redirect user to main screen */
+
 
         event.preventDefault();
     }

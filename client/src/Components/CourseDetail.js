@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
+import { Route, NavLink } from 'react-router-dom';
 
 
 class CourseDetail extends Component {
     constructor() {
         super();
         this.state = {
-            course: {}
+            course: {},
+            userID: ""
         };
     }
 
@@ -15,8 +17,8 @@ class CourseDetail extends Component {
         fetch(`http://localhost:5000/api/courses/${id}`)
             .then(response => response.json())
             .then(course => {
-                // console.log(course)
-                this.setState({ course: course })
+                // console.log("this is course", course)
+                this.setState({ course: course, userID: course.user })
             })
             .catch(error => {
                 console.log('Error fetching and parsing data', error);
@@ -25,6 +27,9 @@ class CourseDetail extends Component {
 
 
     render() {
+
+        const { id } = this.props.match.params;
+        //console.log(id)
         let materialsLis;
         if (this.state.course.materialsNeeded) {
             let materialsNeeded = this.state.course.materialsNeeded
@@ -35,13 +40,19 @@ class CourseDetail extends Component {
         }
 
         return (
-            <div>
 
+            <div>
                 <div>
                     <div className="actions--bar">
                         <div className="bounds">
-                            <div className="grid-100"><span><a className="button" href="update-course.html">Update Course</a><a className="button" href="#">Delete Course</a></span><a
-                                className="button button-secondary" href="index.html">Return to List</a></div>
+                            {/* <div className="grid-100">
+                                <span><a className="button" href="update-course.html">Update Course</a><a className="button" href="#">Delete Course</a></span>
+                                <a className="button button-secondary" href="index.html">Return to List</a>
+                            </div> */}
+                            <div className="grid-100">
+                                <span><NavLink className="button" to={`${id}/update`}>Update Course</NavLink><NavLink className="button" to={"/"}>Delete Course</NavLink></span>
+                                <NavLink className="button button-secondary" to={"/"}>Return to List</NavLink>
+                            </div>
                         </div>
                     </div>
                     <div className="bounds course--detail">

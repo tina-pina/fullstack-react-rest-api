@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 
 class UserSignUp extends Component {
     constructor() {
@@ -48,6 +48,7 @@ class UserSignUp extends Component {
                 .then(response => response.json())
                 .then(userData => {
                     this.props.userStateUpdate(true, this.state.firstName)
+                    this.props.userAuthentication(true, this.state.username, this.state.password)
                     this.props.history.push('/');
                 })
                 .catch(error => {

@@ -6,9 +6,10 @@ import UserSignUp from './Components/UserSignUp';
 import UserSignIn from './Components/UserSignIn';
 import CourseDetail from './Components/CourseDetail';
 import CreateCourse from './Components/CreateCourse';
-
+import UpdateCourse from './Components/UpdateCourse';
 
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
+
 
 
 class App extends Component {
@@ -18,14 +19,27 @@ class App extends Component {
     super();
     this.state = {
       userLoggedIn: false,
-      userName: ""
+      userName: "",
+      userEmail: "",
+      userPassword: "",
+      courses: ""
     }
     this.updateUserLoggedIn = this.updateUserLoggedIn.bind(this);
     this.signOutClicked = this.signOutClicked.bind(this);
+    this.updateUserAuthentication = this.updateUserAuthentication.bind(this);
+  }
+
+  getUserIdCourses = (courses) => {
+    console.log("courses", courses)
+    this.setState({ courses: courses })
   }
 
   updateUserLoggedIn(value, name) {
     this.setState({ userLoggedIn: value, userName: name })
+  }
+
+  updateUserAuthentication(value, email, password) {
+    this.setState({ userLoggedIn: value, userEmail: email, userPassword: password })
   }
 
   signOutClicked(ev, value, name) {
@@ -35,6 +49,8 @@ class App extends Component {
   }
 
   render() {
+
+    console.log("state", this.state)
     return (
       <BrowserRouter>
         <div>
@@ -43,12 +59,17 @@ class App extends Component {
             userName={this.state.userName}
             signOut={this.signOutClicked} />
           <Switch>
-            <Route exact path="/" component={Courses} />
-            <Route exact path="/signup"
-              render={() => <UserSignUp userStateUpdate={this.updateUserLoggedIn} />} />
-            <Route exact path="/signin"
-              render={() => <UserSignIn userStateUpdate={this.updateUserLoggedIn} />} />
+            <Route exact path="/"
+              render={() => <Courses getIdUsers={this.getUserIdCourses.bind(this)} />} />
+
+            {/* component={Courses} /> */}
+            <Route exact path="/signup" render={() => <UserSignUp userStateUpdate={this.updateUserLoggedIn} userAuthentication={this.updateUserAuthentication} />} />
+            <Route exact path="/signin" render={() => <UserSignIn userStateUpdate={this.updateUserLoggedIn} userAuthentication={this.updateUserAuthentication} />} />
             <Route exact path="/courses/:id" component={CourseDetail} />
+            <Route path='/courses/:id/update' render={(props) => <UpdateCourse {...props} username={this.state.userEmail} password={this.state.userPassword} courses={this.state.courses} />} />
+
+            {/* <Route exact path="/courses/:id/update"
+              render={() => <UpdateCourse username={this.state.userEmail} password={this.state.userPassword} />} /> */}
             <Route exact path="/courses/create" component={CreateCourse} />
           </Switch>
         </div>
