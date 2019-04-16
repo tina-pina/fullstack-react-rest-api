@@ -12,10 +12,6 @@ class Header extends Component {
         this.props.signOut(event, false, "")
     }
 
-    goMainPage(ev) {
-        window.location = '/'
-    }
-
     headerLinks() {
         if (this.props.userLoggedIn) {
             return (
@@ -28,7 +24,7 @@ class Header extends Component {
         else {
             return (
                 <nav>
-                    <NavLink className="signup" exact to="/signup" >Sign Up</NavLink>
+                    <NavLink className="signup" exact to="/signup">Sign Up</NavLink>
                     <NavLink className="signin" exact to="/signin">Sign In</NavLink>
                 </nav>
             )
