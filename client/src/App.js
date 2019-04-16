@@ -22,6 +22,7 @@ class App extends Component {
       userName: "",
       userEmail: "",
       userPassword: "",
+      userId: "",
       courses: ""
     }
     this.updateUserLoggedIn = this.updateUserLoggedIn.bind(this);
@@ -34,12 +35,14 @@ class App extends Component {
     this.setState({ courses: courses })
   }
 
+
+
   updateUserLoggedIn(value, name) {
     this.setState({ userLoggedIn: value, userName: name })
   }
 
-  updateUserAuthentication(value, email, password) {
-    this.setState({ userLoggedIn: value, userEmail: email, userPassword: password })
+  updateUserAuthentication(value, email, password, id) {
+    this.setState({ userLoggedIn: value, userEmail: email, userPassword: password, userId: id })
   }
 
   signOutClicked(ev, value, name) {
@@ -66,7 +69,15 @@ class App extends Component {
             <Route exact path="/signup" render={() => <UserSignUp userStateUpdate={this.updateUserLoggedIn} userAuthentication={this.updateUserAuthentication} />} />
             <Route exact path="/signin" render={() => <UserSignIn userStateUpdate={this.updateUserLoggedIn} userAuthentication={this.updateUserAuthentication} />} />
             <Route exact path="/courses/:id" component={CourseDetail} />
-            <Route path='/courses/:id/update' render={(props) => <UpdateCourse {...props} username={this.state.userEmail} password={this.state.userPassword} courses={this.state.courses} />} />
+            <Route path='/courses/:id/update' render={
+              (props) => <UpdateCourse {...props}
+                username={this.state.userEmail}
+                password={this.state.userPassword}
+                courses={this.state.courses}
+                userId={this.state.userId}
+
+              />}
+            />
 
             {/* <Route exact path="/courses/:id/update"
               render={() => <UpdateCourse username={this.state.userEmail} password={this.state.userPassword} />} /> */}

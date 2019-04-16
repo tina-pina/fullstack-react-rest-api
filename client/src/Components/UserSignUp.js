@@ -48,7 +48,7 @@ class UserSignUp extends Component {
                 .then(response => response.json())
                 .then(userData => {
                     this.props.userStateUpdate(true, this.state.firstName)
-                    this.props.userAuthentication(true, this.state.username, this.state.password)
+                    this.props.userAuthentication(true, this.state.username, this.state.password, userData._id)
                     this.props.history.push('/');
                 })
                 .catch(error => {

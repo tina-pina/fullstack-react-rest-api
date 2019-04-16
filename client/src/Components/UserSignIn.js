@@ -40,6 +40,8 @@ class UserSignIn extends Component {
         let username = this.state.username
         let password = this.state.password
 
+
+
         let headers = new Headers();
         headers.append('Authorization', 'Basic ' + base64.encode(username + ":" + password));
         fetch('http://localhost:5000/api/users', { headers: headers, method: 'GET' })
@@ -47,7 +49,8 @@ class UserSignIn extends Component {
             .then(userData => {
                 console.log("this is userData", userData)
                 this.props.userStateUpdate(true, userData.firstName)
-                this.props.userAuthentication(true, userData.emailAddress, userData.password)
+                this.props.userAuthentication(true, username, password, userData._id)
+
                 /* redirect user to main screen */
                 this.props.history.push('/');
             })

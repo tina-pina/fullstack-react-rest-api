@@ -97,7 +97,7 @@ router.post('/users', [
     user.save().then(result => {
         console.log(result);
         res.location('/api');
-        res.status(201).json('User Created!');
+        res.status(201).json(result);
     })
         .catch(err => {
             console.log(err);
@@ -168,7 +168,7 @@ router.post("/courses", [
 
     // Save Course in DB
     course.save(function (err, course) {
-        if (err) return next(err);
+        if (err) next(err);
         // document was successfully saved 
         else {
             res.location('/' + course.id)
@@ -180,9 +180,14 @@ router.post("/courses", [
 // Updates a course and returns no content
 router.put("/courses/:ID", [authenticateUser], function (req, res, next) {
     req.course.update(req.body, function (err, result) {
-        if (err) return next(err);
+        if (err) {
+            console.log(err)
+            next(err);
+        }
         //send results in question document back to client
-        res.sendStatus(204);
+        else {
+            res.sendStatus(204);
+        }
     });
 })
 
@@ -190,8 +195,8 @@ router.put("/courses/:ID", [authenticateUser], function (req, res, next) {
 router.delete("/courses/:ID", [authenticateUser], function (req, res) {
     //remove method of mongoose
     req.course.remove(function (err) {
-        if (err) return next(err);
-        res.sendStatus(204);
+        if (err) next(err);
+        else res.sendStatus(204);
     });
 })
 
