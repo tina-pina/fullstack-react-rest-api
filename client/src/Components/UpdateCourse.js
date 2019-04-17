@@ -1,6 +1,7 @@
 
 
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
 
 let base64 = require('base-64');
 
@@ -75,9 +76,10 @@ class UpdateCourse extends Component {
                 "materialsNeeded": this.state.formValues.materialsNeeded,
                 "user": this.props.userId
             })
-        })
-            .then(res => { console.log(res) })
+        }).then(res => {
 
+            this.props.history.push(`/courses/${id}`);
+        })
             .catch(error => {
                 console.log('Error fetching and parsing data', error);
             });
@@ -164,5 +166,5 @@ class UpdateCourse extends Component {
 
 }
 
-export default UpdateCourse;
+export default withRouter(UpdateCourse);
 

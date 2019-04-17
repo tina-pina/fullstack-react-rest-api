@@ -155,39 +155,47 @@ router.post("/courses", [
         const errorMessages = errors.array().map(error => error.msg);
 
         // Return the validation errors to the client.
-        return res.status(400).json({ errors: errorMessages });
+        res.status(400).json({ errors: errorMessages });
+    } else {
+
+        // Create course
+        const course = new Course({
+            user: req.body.user,
+            title: req.body.title,
+            description: req.body.description,
+            estimatedTime: req.body.estimatedTime,
+            materialsNeeded: req.body.materialsNeeded,
+        });
+
+        // Save Course in DB
+        course.save(function (err, course) {
+            if (err) next(err);
+            // document was successfully saved 
+            else {
+                // res.location('/' + course.id)
+                res.status(201).json(course)
+            };
+        })
+
     }
 
-    // Create course
-    const course = new Course({
-        user: req.body.user,
-        title: req.body.title,
-        description: req.body.description,
-        estimatedTime: req.body.estimatedTime,
-        materialsNeeded: req.body.materialsNeeded,
-    });
-
-    // Save Course in DB
-    course.save(function (err, course) {
-        if (err) next(err);
-        // document was successfully saved 
-        else {
-            res.location('/' + course.id)
-            res.sendStatus(201).json(course)
-        };
-    })
 })
 
 // Updates a course and returns no content
 router.put("/courses/:ID", [authenticateUser], function (req, res, next) {
     req.course.update(req.body, function (err, result) {
+
+        /* TODO add validation */
+
+        console.log(err, result)
         if (err) {
-            console.log(err)
+
             next(err);
         }
         //send results in question document back to client
         else {
-            res.sendStatus(204);
+            console.log("sent")
+            res.status(204).json(result);
         }
     });
 })

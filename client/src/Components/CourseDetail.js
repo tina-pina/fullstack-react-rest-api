@@ -37,12 +37,14 @@ class CourseDetail extends Component {
         const { id } = this.props.match.params;
         //console.log(id)
         let materialsLis;
-        if (this.state.course.materialsNeeded) {
+        if (this.state.course.materialsNeeded && this.state.course.materialsNeeded.includes("*")) {
             let materialsNeeded = this.state.course.materialsNeeded
             materialsLis = materialsNeeded
                 .split("*")
                 .slice(1)
                 .map((elem, id) => <li key={id}>{elem}</li>)
+        } else {
+            materialsLis = <li>{this.state.course.materialsNeeded}</li>
         }
 
         return (

@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
 let base64 = require('base-64');
 
 class CreateCourse extends Component {
+
     constructor(props) {
         super(props);
+
+        // let userId = this.props.userId
+        console.log(this.props)
         this.state = {
             formValues: {
                 title: "",
@@ -11,15 +16,19 @@ class CreateCourse extends Component {
                 estimatedTime: "",
                 materialsNeeded: "",
             },
-            userId: props.userId
+            userId: this.props.userId
+
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
     }
 
-
+    // componentDidMount() {
+    //     this.props.isAuthenticated("true", this.props.username)
+    // }
 
     handleChange(event) {
+        console.log(this.props)
         let name = event.target.name;
         let value = event.target.value;
         let formValues = this.state.formValues;
@@ -42,7 +51,6 @@ class CreateCourse extends Component {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-
                 title: this.state.formValues.title,
                 description: this.state.formValues.description,
                 user: this.state.userId,
@@ -50,9 +58,10 @@ class CreateCourse extends Component {
                 materialsNeeded: this.state.formValues.materialsNeeded
             })
         })
-            .then(res => {
-                window.location = "/"
-                console.log(res)
+            .then(res => res.json())
+            .then(course => {
+                console.log(course)
+                this.props.history.push(`/courses/${course._id}`);
             })
 
             .catch(error => {
@@ -118,4 +127,4 @@ class CreateCourse extends Component {
     }
 }
 
-export default CreateCourse;
+export default withRouter(CreateCourse);
