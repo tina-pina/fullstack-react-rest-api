@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Route, NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 
 
 class CourseDetail extends Component {
@@ -12,22 +13,27 @@ class CourseDetail extends Component {
     }
 
     componentDidMount() {
+        console.log("MATCH", this.props.match)
         const { id } = this.props.match.params;
 
-        fetch(`http://localhost:5000/api/courses/${id}`)
-            .then(response => response.json())
-            .then(course => {
-                // console.log("this is course", course)
-                this.setState({ course: course, userID: course.user })
-            })
-            .catch(error => {
-                console.log('Error fetching and parsing data', error);
-            });
+        if (id !== "create") {
+            fetch(`http://localhost:5000/api/courses/${id}`)
+                .then(response => response.json())
+                .then(course => {
+                    // console.log("this is course", course)
+                    this.setState({ course: course, userID: course.user })
+                })
+                .catch(error => {
+                    console.log('Error fetching and parsing data', error);
+                });
+        }
+
+
     }
 
 
     render() {
-
+        console.log("wrong page")
         const { id } = this.props.match.params;
         //console.log(id)
         let materialsLis;
@@ -91,4 +97,4 @@ class CourseDetail extends Component {
     }
 }
 
-export default CourseDetail;
+export default withRouter(CourseDetail);

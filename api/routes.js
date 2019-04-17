@@ -1,3 +1,4 @@
+
 'use strict';
 
 var express = require("express");
@@ -172,7 +173,7 @@ router.post("/courses", [
         // document was successfully saved 
         else {
             res.location('/' + course.id)
-            res.sendStatus(201)
+            res.sendStatus(201).json(course)
         };
     })
 })
@@ -201,3 +202,4 @@ router.delete("/courses/:ID", [authenticateUser], function (req, res) {
 })
 
 module.exports = router;
+

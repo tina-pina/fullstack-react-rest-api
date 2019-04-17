@@ -1,6 +1,6 @@
 
 import React, { Component } from 'react';
-import { NavLink } from 'react-router-dom';
+// import { NavLink } from 'react-router-dom';
 import { withRouter } from 'react-router-dom';
 
 
@@ -47,7 +47,7 @@ class UserSignIn extends Component {
         fetch('http://localhost:5000/api/users', { headers: headers, method: 'GET' })
             .then(response => response.json())
             .then(userData => {
-                console.log("this is userData", userData)
+                //console.log("this is userData", userData)
                 this.props.userStateUpdate(true, userData.firstName)
                 this.props.userAuthentication(true, username, password, userData._id)
 

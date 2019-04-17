@@ -1,3 +1,5 @@
+
+
 import React, { Component } from 'react';
 
 let base64 = require('base-64');
@@ -14,15 +16,14 @@ class UpdateCourse extends Component {
                 description: "",
                 estimatedTime: "",
                 materialsNeeded: ""
-            },
-            user: ""
+            }
         };
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
     }
 
     componentDidMount() {
-        // console.log(this.props.match.params)
+
         const { id } = this.props.match.params
 
         fetch(`http://localhost:5000/api/courses/${id}`)
@@ -47,7 +48,7 @@ class UpdateCourse extends Component {
 
         let name = event.target.name;
         let value = event.target.value;
-        let formValues = this.state.formValues
+        let formValues = this.state.formValues;
 
         formValues[name] = value
         this.setState({ formValues: formValues })
@@ -58,9 +59,8 @@ class UpdateCourse extends Component {
         const { id } = this.props.match.params;
         let username = this.props.username
         let password = this.props.password
-        console.log(username, password)
-        // let headers = new Headers();
-        // headers.append('Authorization', 'Basic ' + base64.encode(username + ":" + password));
+        //console.log(username, password)
+
         fetch(`http://localhost:5000/api/courses/${id}`, {
             method: "PUT",
             headers: {
@@ -71,6 +71,8 @@ class UpdateCourse extends Component {
                 "_id": `${id}`,
                 "title": this.state.formValues.title,
                 "description": this.state.formValues.description,
+                "estimatedTime": this.state.formValues.estimatedTime,
+                "materialsNeeded": this.state.formValues.materialsNeeded,
                 "user": this.props.userId
             })
         })
@@ -99,6 +101,7 @@ class UpdateCourse extends Component {
                                         name="title"
                                         type="text"
                                         className="input-title course--title--input"
+                                        placeholder="Course title..."
                                         value={this.state.formValues.title}
                                         onChange={this.handleChange}></input>
                                 </div>
@@ -110,6 +113,7 @@ class UpdateCourse extends Component {
                                         id="description"
                                         name="description"
                                         className=""
+                                        placeholder="Course description..."
                                         value={this.state.formValues.description}
                                         onChange={this.handleChange}></textarea>
                                 </div>
@@ -126,6 +130,7 @@ class UpdateCourse extends Component {
                                                 name="estimatedTime"
                                                 type="text"
                                                 className="course--time--input"
+                                                placeholder="Hours"
                                                 value={this.state.formValues.estimatedTime}
                                                 onChange={this.handleChange}></input>
                                         </div>
@@ -137,6 +142,7 @@ class UpdateCourse extends Component {
                                                 id="materialsNeeded"
                                                 name="materialsNeeded"
                                                 className=""
+                                                placeholder="List materials..."
                                                 value={this.state.formValues.materialsNeeded}
                                                 onChange={this.handleChange}></textarea>
                                         </div>
@@ -159,3 +165,4 @@ class UpdateCourse extends Component {
 }
 
 export default UpdateCourse;
+
