@@ -73,23 +73,10 @@ class App extends Component {
             {/* component={Courses} /> */}
             <Route exact path="/signup" render={() => <UserSignUp userStateUpdate={this.updateUserLoggedIn} userAuthentication={this.updateUserAuthentication} />} />
             <Route exact path="/signin" render={() => <UserSignIn userStateUpdate={this.updateUserLoggedIn} userAuthentication={this.updateUserAuthentication} />} />
-            {/* exact
-              path="/home"
-              component={Home}
-              isAuthenticated={!!this.isLoggedIn()}
-              redirect="/login" */}
             <PrivateRoute
               exact
               path="/courses/create"
               component={CreateCourse}
-              // msg="this is being passed!"
-              // render={
-              //   (props) => <CreateCourse {...props}
-              //     courses={this.state.courses}
-              //     username={this.state.userEmail}
-              //     password={this.state.userPassword}
-              //     userId={this.state.userId}
-              //   />}
               courses={this.state.courses}
               username={this.state.userEmail}
               password={this.state.userPassword}
@@ -97,23 +84,17 @@ class App extends Component {
               isAuthenticated={this.state.userLoggedIn}
               redirect="/signin"
             />
-            <Route exact path="/courses/:id" component={CourseDetail} />
+            <Route exact path="/courses/:id"
+              render={() => <CourseDetail username={this.state.userEmail}
+                password={this.state.userPassword} />} />
             <PrivateRoute
               exact
               path='/courses/:id/update'
               component={UpdateCourse}
-              // msg="this is being passed!"
               username={this.state.userEmail}
               password={this.state.userPassword}
               courses={this.state.courses}
               userId={this.state.userId}
-              // render={
-              //   (props) => <UpdateCourse {...props}
-              //     username={this.state.userEmail}
-              //     password={this.state.userPassword}
-              //     courses={this.state.courses}
-              //     userId={this.state.userId}
-              //   />}
               isAuthenticated={this.state.userLoggedIn}
               redirect="/signin"
             />

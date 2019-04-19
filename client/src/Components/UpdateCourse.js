@@ -17,7 +17,8 @@ class UpdateCourse extends Component {
                 description: "",
                 estimatedTime: "",
                 materialsNeeded: ""
-            }
+            },
+            errors: []
         };
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
@@ -30,7 +31,6 @@ class UpdateCourse extends Component {
         fetch(`http://localhost:5000/api/courses/${id}`)
             .then(response => response.json())
             .then(course => {
-                // console.log(course)
                 this.setState({
                     formValues: {
                         title: course.title,
@@ -60,7 +60,6 @@ class UpdateCourse extends Component {
         const { id } = this.props.match.params;
         let username = this.props.username
         let password = this.props.password
-        //console.log(username, password)
 
         fetch(`http://localhost:5000/api/courses/${id}`, {
             method: "PUT",
@@ -76,13 +75,22 @@ class UpdateCourse extends Component {
                 "materialsNeeded": this.state.formValues.materialsNeeded,
                 "user": this.props.userId
             })
-        }).then(res => {
-
-            this.props.history.push(`/courses/${id}`);
         })
-            .catch(error => {
-                console.log('Error fetching and parsing data', error);
-            });
+            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    console.log(res.errors)
+                    this.setState({ errors: res.errors })
+                    throw Error(res.statusText);
+                }
+                else {
+                    // return response.json()  //we only get here if there is no error
+                    this.props.history.push(`/courses/${id}`);
+                    return res;
+                }
+            }).catch(error => {
+                console.log(error);
+            })
 
         event.preventDefault();
     }
@@ -92,6 +100,13 @@ class UpdateCourse extends Component {
         return (
             <div className="bounds course--detail">
                 <h1>Update Course</h1>
+                <div>
+                    <div className="validation-errors">
+                        <ul>
+                            {this.state.errors.map((err, index) => <li key={index}>{err}</li>)}
+                        </ul>
+                    </div>
+                </div>
                 <div>
                     <form onSubmit={this.handleSubmit}>
                         <div className="grid-66">
@@ -104,7 +119,7 @@ class UpdateCourse extends Component {
                                         type="text"
                                         className="input-title course--title--input"
                                         placeholder="Course title..."
-                                        value={this.state.formValues.title}
+                                        value={this.state.formValues.title || ''}
                                         onChange={this.handleChange}></input>
                                 </div>
                                 <p>By Anonymous</p>
@@ -116,7 +131,7 @@ class UpdateCourse extends Component {
                                         name="description"
                                         className=""
                                         placeholder="Course description..."
-                                        value={this.state.formValues.description}
+                                        value={this.state.formValues.description || ''}
                                         onChange={this.handleChange}></textarea>
                                 </div>
                             </div>
@@ -133,7 +148,7 @@ class UpdateCourse extends Component {
                                                 type="text"
                                                 className="course--time--input"
                                                 placeholder="Hours"
-                                                value={this.state.formValues.estimatedTime}
+                                                value={this.state.formValues.estimatedTime || ''}
                                                 onChange={this.handleChange}></input>
                                         </div>
                                     </li>
@@ -145,7 +160,7 @@ class UpdateCourse extends Component {
                                                 name="materialsNeeded"
                                                 className=""
                                                 placeholder="List materials..."
-                                                value={this.state.formValues.materialsNeeded}
+                                                value={this.state.formValues.materialsNeeded || ''}
                                                 onChange={this.handleChange}></textarea>
                                         </div>
                                     </li>

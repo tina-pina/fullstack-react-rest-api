@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
 import { withRouter } from 'react-router-dom';
+let base64 = require('base-64');
 
 
 class CourseDetail extends Component {
@@ -10,10 +11,10 @@ class CourseDetail extends Component {
             course: {},
             userID: ""
         };
+        this.deleteHandler = this.deleteHandler.bind(this)
     }
 
     componentDidMount() {
-        console.log("MATCH", this.props.match)
         const { id } = this.props.match.params;
 
         if (id !== "create") {
@@ -27,15 +28,38 @@ class CourseDetail extends Component {
                     console.log('Error fetching and parsing data', error);
                 });
         }
+    }
 
+    deleteHandler(event) {
+
+        const { id } = this.props.match.params;
+
+        let username = this.props.username
+        console.log(username)
+        let password = this.props.password
+
+        event.preventDefault();
+
+        fetch(`http://localhost:5000/api/courses/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': 'Basic ' + base64.encode(username + ":" + password),
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => {
+                if (!res.status === 204) throw Error("remove failed")
+                else {
+                    this.props.history.push("/");
+                }
+            })
 
     }
 
 
     render() {
-        console.log("wrong page")
+
         const { id } = this.props.match.params;
-        //console.log(id)
         let materialsLis;
         if (this.state.course.materialsNeeded && this.state.course.materialsNeeded.includes("*")) {
             let materialsNeeded = this.state.course.materialsNeeded
@@ -58,7 +82,7 @@ class CourseDetail extends Component {
                                 <a className="button button-secondary" href="index.html">Return to List</a>
                             </div> */}
                             <div className="grid-100">
-                                <span><NavLink className="button" to={`${id}/update`}>Update Course</NavLink><NavLink className="button" to={"/"}>Delete Course</NavLink></span>
+                                <span><NavLink className="button" to={`${id}/update`}>Update Course</NavLink><NavLink className="button" to={"/"} onClick={this.deleteHandler}>Delete Course</NavLink></span>
                                 <NavLink className="button button-secondary" to={"/"}>Return to List</NavLink>
                             </div>
                         </div>

@@ -109,14 +109,14 @@ router.post('/users', [
 
 // Returns a the course (including the user that owns the course) for the provided course ID
 router.param("ID", function (req, res, next, id) {
-    Course.findById(id, function (err, doc) {
+    Course.findById(id, function (err, course) {
         if (err) next(err);
-        if (!doc) {
+        if (!course) {
             err = new Error("Not Found");
             err.status = 404;
             next(err);
         }
-        req.course = doc;
+        req.course = course;
         next();
     })
 })
@@ -172,32 +172,50 @@ router.post("/courses", [
             if (err) next(err);
             // document was successfully saved 
             else {
-                // res.location('/' + course.id)
                 res.status(201).json(course)
             };
         })
-
     }
-
 })
 
 // Updates a course and returns no content
-router.put("/courses/:ID", [authenticateUser], function (req, res, next) {
-    req.course.update(req.body, function (err, result) {
 
-        /* TODO add validation */
+/* TODO add validation */
+router.put("/courses/:ID", [
+    authenticateUser,
+    check('title')
+        .exists({ checkNull: true, checkFalsy: true })
+        .withMessage('Please provide a value for "title"'),
+    check('description')
+        .exists({ checkNull: true, checkFalsy: true })
+        .withMessage('Please provide a value for "description"')
+], function (req, res, next) {
 
-        console.log(err, result)
-        if (err) {
+    const errors = validationResult(req);
 
-            next(err);
-        }
-        //send results in question document back to client
-        else {
-            console.log("sent")
-            res.status(204).json(result);
-        }
-    });
+    if (!errors.isEmpty()) {
+        // Use the Array `map()` method to get a list of error messages.
+        const errorMessages = errors.array().map(error => error.msg);
+
+        // Return the validation errors to the client.
+        res.status(400).json({ errors: errorMessages });
+    }
+    else {
+        req.course.update(req.body, function (err, result) {
+
+            if (err) {
+                console.log(err)
+                //res.status(400).json(err)
+                next(err);
+            }
+            //send results in question document back to client
+            else {
+                console.log("sent")
+                res.status(200).json(result);
+            }
+        });
+
+    }
 })
 
 // Deletes a course and returns no content

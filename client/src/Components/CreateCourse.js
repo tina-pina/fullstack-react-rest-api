@@ -7,25 +7,22 @@ class CreateCourse extends Component {
     constructor(props) {
         super(props);
 
-        // let userId = this.props.userId
         console.log(this.props)
         this.state = {
+            isError: false,
             formValues: {
                 title: "",
                 description: "",
                 estimatedTime: "",
                 materialsNeeded: "",
             },
-            userId: this.props.userId
-
+            userId: this.props.userId,
+            validationErrors: null,
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
     }
 
-    // componentDidMount() {
-    //     this.props.isAuthenticated("true", this.props.username)
-    // }
 
     handleChange(event) {
         console.log(this.props)
@@ -35,8 +32,6 @@ class CreateCourse extends Component {
 
         formValues[name] = value;
         this.setState({ formValues: formValues })
-        console.log("WHATS HERE", this.state.userId)
-
     }
 
     handleSubmit(event) {
@@ -59,13 +54,22 @@ class CreateCourse extends Component {
             })
         })
             .then(res => res.json())
-            .then(course => {
-                console.log(course)
-                this.props.history.push(`/courses/${course._id}`);
-            })
+            .then(res => {
+                console.log(res)
+                if (res.errors) {
+                    console.log(res.errors)
+                    this.setState({ validationErrors: res.errors, isError: true })
+                    throw Error(res.statusText);
+                }
 
+                else {
+                    console.log(res)
+                    this.props.history.push(`/courses/${res._id}`);
+                    return res;
+                }
+            })
             .catch(error => {
-                console.log('Error fetching and parsing data', error);
+                console.log(error);
             });
 
         event.preventDefault();
@@ -74,7 +78,15 @@ class CreateCourse extends Component {
 
     render() {
 
-        console.log(this.props.userId)
+        let errHeader = (this.state.validationErrors) ?
+            <h2 className="validation--errors--label">Validation errors</h2> : <h2></h2>
+        let errMsg = (this.state.validationErrors) ? (
+            <div className="validation-errors">
+                <ul>
+                    {this.state.validationErrors.map((err, index) => <li key={index}>{err}</li>)}
+                </ul>
+            </div>
+        ) : <div></div>
 
 
         return (
@@ -82,14 +94,8 @@ class CreateCourse extends Component {
                 <h1>Create Course</h1>
                 <div>
                     <div>
-                        <h2
-                            className="validation--errors--label">Validation errors</h2>
-                        <div className="validation-errors">
-                            <ul>
-                                <li>Please provide a value for "Title"</li>
-                                <li>Please provide a value for "Description"</li>
-                            </ul>
-                        </div>
+                        {errHeader}
+                        {errMsg}
                     </div>
                     <form onSubmit={this.handleSubmit}>
                         <div className="grid-66">
