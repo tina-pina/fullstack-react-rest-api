@@ -38,7 +38,7 @@ const authenticateUser = (req, res, next) => {
                 // Password DOES NOT match
                 else {
                     message = `Authentication failure for username: ${user.emailAddress}`;
-                    res.status(401).json({ message: 'Access Denied' });
+                    res.status(401).json({ errors: ['Access Denied'] });
                 }
                 // User NOT in DB:
             } else {
@@ -46,7 +46,7 @@ const authenticateUser = (req, res, next) => {
                 console.warn(message);
 
                 // Return a response with a 401 Unauthorized HTTP status code.
-                res.status(401).json({ message: 'Access Denied' });
+                res.status(401).json({ errors: ['Access Denied'] });
             }
         })
     }
@@ -192,6 +192,7 @@ router.put("/courses/:ID", [
 ], function (req, res, next) {
 
     const errors = validationResult(req);
+    // {errors: [....]}
 
     if (!errors.isEmpty()) {
         // Use the Array `map()` method to get a list of error messages.
@@ -201,30 +202,53 @@ router.put("/courses/:ID", [
         res.status(400).json({ errors: errorMessages });
     }
     else {
-        req.course.update(req.body, function (err, result) {
 
-            if (err) {
-                console.log(err)
-                //res.status(400).json(err)
-                next(err);
-            }
-            //send results in question document back to client
-            else {
-                console.log("sent")
-                res.status(200).json(result);
-            }
-        });
+        // console.log("current course", req.course.user)
+        let courseOwnerId = req.course.user
+        let currUserId = req.currentUser._id;
+
+        if (currUserId.equals(courseOwnerId)) {
+            // update
+            req.course.update(req.body, function (err, result) {
+
+                if (err) {
+                    console.log(err)
+                    //res.status(400).json(err)
+                    next(err);
+                }
+                //send results in question document back to client
+                else {
+                    console.log("sent")
+                    res.status(200).json(result);
+                }
+
+            });
+        } else {
+            // unauthorized
+            res.status(401).json({ "errors": ["You are not allowed to update other user's courses"] });
+        }
+
+
 
     }
 })
 
 // Deletes a course and returns no content
 router.delete("/courses/:ID", [authenticateUser], function (req, res) {
-    //remove method of mongoose
-    req.course.remove(function (err) {
-        if (err) next(err);
-        else res.sendStatus(204);
-    });
+    let courseOwnerId = req.course.user
+    let currUserId = req.currentUser._id;
+
+    if (currUserId.equals(courseOwnerId)) {
+        //remove method of mongoose
+        req.course.remove(function (err) {
+            if (err) next(err);
+            else res.status(200).json({ "ok": 1 });
+        });
+    }
+    else {
+        // unauthorized
+        res.status(401).json({ "errors": ["You are not allowed to delete other user's courses"] });
+    }
 })
 
 module.exports = router;

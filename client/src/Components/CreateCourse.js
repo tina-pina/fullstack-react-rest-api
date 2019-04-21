@@ -9,7 +9,6 @@ class CreateCourse extends Component {
 
         console.log(this.props)
         this.state = {
-            isError: false,
             formValues: {
                 title: "",
                 description: "",
@@ -21,6 +20,7 @@ class CreateCourse extends Component {
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleCancel = this.handleCancel.bind(this);
     }
 
 
@@ -32,6 +32,10 @@ class CreateCourse extends Component {
 
         formValues[name] = value;
         this.setState({ formValues: formValues })
+    }
+
+    handleCancel(event) {
+        this.props.history.push("/");
     }
 
     handleSubmit(event) {
@@ -58,7 +62,7 @@ class CreateCourse extends Component {
                 console.log(res)
                 if (res.errors) {
                     console.log(res.errors)
-                    this.setState({ validationErrors: res.errors, isError: true })
+                    this.setState({ validationErrors: res.errors })
                     throw Error(res.statusText);
                 }
 
@@ -124,7 +128,10 @@ class CreateCourse extends Component {
                                 </ul>
                             </div>
                         </div>
-                        <div className="grid-100 pad-bottom"><button className="button" type="submit">Create Course</button><button className="button button-secondary">Cancel</button></div>
+                        <div className="grid-100 pad-bottom">
+                            <button className="button" type="submit">Create Course</button>
+                            <button className="button button-secondary" type="button" onClick={this.handleCancel}>Cancel</button>
+                        </div>
                     </form>
                 </div>
             </div>

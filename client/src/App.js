@@ -7,7 +7,7 @@ import UserSignIn from './Components/UserSignIn';
 import CourseDetail from './Components/CourseDetail';
 import CreateCourse from './Components/CreateCourse';
 import UpdateCourse from './Components/UpdateCourse';
-// import PrivateRoute from './Components/PrivateRoute';
+import NotFound from './Components/NotFound';
 
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import PrivateRoute from 'react-private-route'
@@ -25,7 +25,7 @@ class App extends Component {
       userId: "",
       courses: ""
     }
-    this.updateUserLoggedIn = this.updateUserLoggedIn.bind(this);
+    // this.updateUserLoggedIn = this.updateUserLoggedIn.bind(this);
     this.signOutClicked = this.signOutClicked.bind(this);
     this.updateUserAuthentication = this.updateUserAuthentication.bind(this);
     this.getCourses = this.getCourses.bind(this)
@@ -41,12 +41,12 @@ class App extends Component {
     this.setState({ courses: courses })
   }
 
-  updateUserLoggedIn(value, name) {
-    this.setState({ userLoggedIn: value, userName: name })
-  }
+  // updateUserLoggedIn(value, name) {
+  //   this.setState({ userLoggedIn: value, userName: name })
+  // }
 
-  updateUserAuthentication(value, email, password, id) {
-    this.setState({ userLoggedIn: value, userEmail: email, userPassword: password, userId: id })
+  updateUserAuthentication(value, username, email, password, id) {
+    this.setState({ userLoggedIn: value, userName: username, userEmail: email, userPassword: password, userId: id })
   }
 
   signOutClicked(ev, value, name) {
@@ -71,8 +71,8 @@ class App extends Component {
               render={() => <Courses getCourses={this.getCourses} />} />
 
             {/* component={Courses} /> */}
-            <Route exact path="/signup" render={() => <UserSignUp userStateUpdate={this.updateUserLoggedIn} userAuthentication={this.updateUserAuthentication} />} />
-            <Route exact path="/signin" render={() => <UserSignIn userStateUpdate={this.updateUserLoggedIn} userAuthentication={this.updateUserAuthentication} />} />
+            <Route exact path="/signup" render={() => <UserSignUp userAuthentication={this.updateUserAuthentication} />} />
+            <Route exact path="/signin" render={() => <UserSignIn userAuthentication={this.updateUserAuthentication} />} />
             <PrivateRoute
               exact
               path="/courses/create"
@@ -85,7 +85,7 @@ class App extends Component {
               redirect="/signin"
             />
             <Route exact path="/courses/:id"
-              render={() => <CourseDetail username={this.state.userEmail}
+              render={() => <CourseDetail username={this.state.userEmail} userId={this.state.userId}
                 password={this.state.userPassword} />} />
             <PrivateRoute
               exact
@@ -101,6 +101,7 @@ class App extends Component {
             {/* 
             <Route exact path="/courses/:id/update"
               render={() => <UpdateCourse username={this.state.userEmail} password={this.state.userPassword} />} /> */}
+            <Route component={NotFound} />
           </Switch>
         </div>
       </BrowserRouter>

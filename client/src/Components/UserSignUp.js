@@ -9,7 +9,8 @@ class UserSignUp extends Component {
             lastName: "",
             username: "",
             password: "",
-            confirmPassword: ""
+            confirmPassword: "",
+            errors: null
         };
 
         this.handleFirstName = this.handleFirstName.bind(this);
@@ -23,13 +24,16 @@ class UserSignUp extends Component {
 
     handleSubmit(event) {
 
-        if ((!this.state.firstName
-            || !this.state.lastName
-            || !this.state.username
-            || !this.state.password
-            || !this.confirmPassword)
-            && (this.state.password !== this.state.confirmPassword)) {
-            console.log(this.state.firstName, this.state.lastName, this.state.username, this.state.password, this.confirmPassword)
+        let errorMsgs = []
+        if (!this.state.firstName) errorMsgs.push("Please provide a value for \"firstName\"")
+        if (!this.state.lastName) errorMsgs.push("Please provide a value for \"lastName\"")
+        if (!this.state.username) errorMsgs.push("Please provide a value for \"username\"")
+        if (!this.state.password) errorMsgs.push("Please provide a value for \"password\"")
+        if (!this.state.confirmPassword) errorMsgs.push("Please provide a value for \"confirmPassword\"")
+        if (this.state.password !== this.state.confirmPassword) errorMsgs.push("Please provide the same value for \"password\" & \"confirmPassword\"")
+
+        if (errorMsgs.length !== 0) {
+            this.setState({ "errors": errorMsgs })
         }
         else {
 
@@ -47,21 +51,29 @@ class UserSignUp extends Component {
             })
                 .then(response => response.json())
                 .then(userData => {
-                    this.props.userStateUpdate(true, this.state.firstName)
-                    this.props.userAuthentication(true, this.state.username, this.state.password, userData._id)
-                    this.props.history.push('/');
+                    // this.props.userStateUpdate(true, this.state.firstName)
+                    if (userData.errors) {
+                        this.setState({ "errors": userData.errors })
+                    }
+
+                    else {
+                        this.props.userAuthentication(true, this.state.firstName, this.state.username, this.state.password, userData._id)
+                        this.props.history.push('/');
+                    }
+
+
                 })
                 .catch(error => {
                     console.log('Error fetching and parsing data', error);
                 });
 
-            /* ToDO redirect user to main screen */
-
         }
 
         event.preventDefault()
-
     }
+
+
+
 
     handleFirstName(event) {
         let firstName = event.target.value;
@@ -95,10 +107,14 @@ class UserSignUp extends Component {
     }
 
     render() {
+
+        let errorMsg = (this.state.errors) ? <div>{this.state.errors.map((error, index) => <p key={index}>{error}</p>)}</div> : <div></div>
+
         return (
             <div className="bounds">
                 <div className="grid-33 centered signin">
                     <h1>Sign Up</h1>
+                    {errorMsg}
                     <div>
                         <form onSubmit={this.handleSubmit}>
                             <div><input id="firstName" name="firstName" type="text" className="" placeholder="First Name" onChange={this.handleFirstName}></input></div>

@@ -11,7 +11,8 @@ class UserSignIn extends Component {
         super();
         this.state = {
             username: "",
-            password: ""
+            password: "",
+            errors: null
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleEmail = this.handleEmail.bind(this);
@@ -37,37 +38,53 @@ class UserSignIn extends Component {
 
 
     handleSubmit(event) {
-        let username = this.state.username
-        let password = this.state.password
 
 
+        let errorMsgs = []
+        if (!this.state.username) errorMsgs.push("Please provide a value for \"username\"")
+        if (!this.state.password) errorMsgs.push("Please provide a value for \"password\"")
 
-        let headers = new Headers();
-        headers.append('Authorization', 'Basic ' + base64.encode(username + ":" + password));
-        fetch('http://localhost:5000/api/users', { headers: headers, method: 'GET' })
-            .then(response => response.json())
-            .then(userData => {
-                //console.log("this is userData", userData)
-                this.props.userStateUpdate(true, userData.firstName)
-                this.props.userAuthentication(true, username, password, userData._id)
+        if (errorMsgs.length !== 0) {
+            this.setState({ "errors": errorMsgs })
+        }
 
-                /* redirect user to main screen */
-                this.props.history.push('/');
-            })
-            .catch(error => {
-                console.log('Error fetching and parsing data', error);
-            });
+        else {
+            let username = this.state.username
+            let password = this.state.password
 
+            let headers = new Headers();
+            headers.append('Authorization', 'Basic ' + base64.encode(username + ":" + password));
+            fetch('http://localhost:5000/api/users', { headers: headers, method: 'GET' })
+                .then(response => response.json())
+                .then(userData => {
 
+                    if (userData.errors) {
+                        this.setState({ "errors": userData.errors })
+                    }
+                    else {
+                        this.props.userAuthentication(true, userData.firstName, username, password, userData._id)
+                        this.props.history.push('/');
+                    }
+
+                })
+                .catch(error => {
+                    console.log('Error fetching and parsing data', error);
+                });
+        }
 
         event.preventDefault();
     }
 
     render() {
+
+        let errorMsg = (this.state.errors) ? <div>{this.state.errors.map((error, index) => <p key={index}>{error}</p>)}</div> : <div></div>
+
+
         return (
             <div className="bounds">
                 <div className="grid-33 centered signin">
                     <h1>Sign In</h1>
+                    {errorMsg}
                     <form onSubmit={this.handleSubmit}>
                         <div>
                             <input id="emailAddress" name="emailAddress" type="text" className="emailAddress" placeholder="Email Address" onChange={this.handleEmail}></input>

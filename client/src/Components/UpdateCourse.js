@@ -18,10 +18,11 @@ class UpdateCourse extends Component {
                 estimatedTime: "",
                 materialsNeeded: ""
             },
-            errors: []
+            errors: null
         };
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
+        this.handleCancel = this.handleCancel.bind(this)
     }
 
     componentDidMount() {
@@ -55,7 +56,13 @@ class UpdateCourse extends Component {
         this.setState({ formValues: formValues })
     }
 
+    handleCancel(event) {
+        this.props.history.push("/");
+    }
+
     handleSubmit(event) {
+
+        console.log('submit')
 
         const { id } = this.props.match.params;
         let username = this.props.username
@@ -97,14 +104,23 @@ class UpdateCourse extends Component {
 
     render() {
 
+        let errHeader = (this.state.errors) ?
+            <h2 className="validation--errors--label">Validation errors</h2> : <h2></h2>
+        let errMsg = (this.state.errors) ? (
+            <div className="validation-errors">
+                <ul>
+                    {this.state.errors.map((err, index) => <li key={index}>{err}</li>)}
+                </ul>
+            </div>
+        ) : <div></div>
+
         return (
             <div className="bounds course--detail">
                 <h1>Update Course</h1>
                 <div>
-                    <div className="validation-errors">
-                        <ul>
-                            {this.state.errors.map((err, index) => <li key={index}>{err}</li>)}
-                        </ul>
+                    <div>
+                        {errHeader}
+                        {errMsg}
                     </div>
                 </div>
                 <div>
@@ -169,7 +185,7 @@ class UpdateCourse extends Component {
                         </div>
                         <div className="grid-100 pad-bottom">
                             <button className="button" type="submit">Update Course</button>
-                            <button className="button button-secondary">Cancel</button>
+                            <button className="button button-secondary" type="button" onClick={this.handleCancel}>Cancel</button>
                         </div>
                     </form>
                 </div>

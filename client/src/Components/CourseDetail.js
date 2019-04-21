@@ -1,17 +1,20 @@
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
 import { withRouter } from 'react-router-dom';
+const ReactMarkdown = require('react-markdown')
 let base64 = require('base-64');
 
 
 class CourseDetail extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             course: {},
-            userID: ""
-        };
+            deleteErrors: null,
+            userId: this.props.userId
+        }
         this.deleteHandler = this.deleteHandler.bind(this)
+
     }
 
     componentDidMount() {
@@ -21,8 +24,8 @@ class CourseDetail extends Component {
             fetch(`http://localhost:5000/api/courses/${id}`)
                 .then(response => response.json())
                 .then(course => {
-                    // console.log("this is course", course)
-                    this.setState({ course: course, userID: course.user })
+
+                    this.setState({ course: course })
                 })
                 .catch(error => {
                     console.log('Error fetching and parsing data', error);
@@ -47,12 +50,20 @@ class CourseDetail extends Component {
                 'Content-Type': 'application/json'
             }
         })
+            .then(response => response.json())
             .then(res => {
-                if (!res.status === 204) throw Error("remove failed")
+                console.log(res)
+                if (res.errors) {
+                    this.setState({ deleteErrors: res.errors })
+                    throw Error("remove failed")
+                }
                 else {
                     this.props.history.push("/");
                 }
             })
+            .catch(error => {
+                console.log('Error fetching and parsing data', error);
+            });
 
     }
 
@@ -60,16 +71,24 @@ class CourseDetail extends Component {
     render() {
 
         const { id } = this.props.match.params;
-        let materialsLis;
-        if (this.state.course.materialsNeeded && this.state.course.materialsNeeded.includes("*")) {
-            let materialsNeeded = this.state.course.materialsNeeded
-            materialsLis = materialsNeeded
-                .split("*")
-                .slice(1)
-                .map((elem, id) => <li key={id}>{elem}</li>)
-        } else {
-            materialsLis = <li>{this.state.course.materialsNeeded}</li>
-        }
+
+        /* error Handler Validation */
+        let errHeader = (this.state.deleteErrors) ?
+            <h2 className="validation--errors--label">Validation errors</h2> : <h2></h2>
+        let errMsg = (this.state.deleteErrors) ? (
+            <div className="validation-errors">
+                <ul>
+                    {this.state.deleteErrors.map((err, index) => <li key={index}>{err}</li>)}
+                </ul>
+            </div>
+        ) : <div></div>
+
+        /* decide if update course and delete course button is displayed */
+        let buttonsForOwners = (this.state.course.user === this.state.userId) ? (<span>
+            <NavLink className="button" to={`${id}/update`}>Update Course</NavLink>
+            <NavLink className="button" to={"/"} onClick={this.deleteHandler}>Delete Course</NavLink>
+        </span>) : <span></span>
+
 
         return (
 
@@ -77,17 +96,17 @@ class CourseDetail extends Component {
                 <div>
                     <div className="actions--bar">
                         <div className="bounds">
-                            {/* <div className="grid-100">
-                                <span><a className="button" href="update-course.html">Update Course</a><a className="button" href="#">Delete Course</a></span>
-                                <a className="button button-secondary" href="index.html">Return to List</a>
-                            </div> */}
                             <div className="grid-100">
-                                <span><NavLink className="button" to={`${id}/update`}>Update Course</NavLink><NavLink className="button" to={"/"} onClick={this.deleteHandler}>Delete Course</NavLink></span>
+                                {buttonsForOwners}
                                 <NavLink className="button button-secondary" to={"/"}>Return to List</NavLink>
                             </div>
                         </div>
                     </div>
                     <div className="bounds course--detail">
+                        <div>
+                            {errHeader}
+                            {errMsg}
+                        </div>
                         <div className="grid-66">
                             <div className="course--header">
                                 <h4 className="course--label">Course</h4>
@@ -95,9 +114,8 @@ class CourseDetail extends Component {
                                 <p>By Anonymous</p>
                             </div>
                             <div className="course--description">
-                                {
-                                    this.state.course.description
-                                }
+                                <ReactMarkdown source={this.state.course.description} />
+
                             </div>
                         </div>
                         <div className="grid-25 grid-right">
@@ -109,9 +127,7 @@ class CourseDetail extends Component {
                                     </li>
                                     <li className="course--stats--list--item">
                                         <h4>Materials Needed</h4>
-                                        <ul>
-                                            {materialsLis}
-                                        </ul>
+                                        <ReactMarkdown source={this.state.course.materialsNeeded} />
                                     </li>
                                 </ul>
                             </div>

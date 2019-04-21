@@ -5,6 +5,7 @@ class Header extends Component {
     constructor() {
         super();
         this.headerLinks = this.headerLinks.bind(this)
+        this.callSignOut = this.callSignOut.bind(this)
     }
 
     callSignOut(event) {
