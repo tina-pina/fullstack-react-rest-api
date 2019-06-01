@@ -9,8 +9,8 @@ let base64 = require('base-64');
 
 class UpdateCourse extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             formValues: {
                 title: "",
@@ -18,7 +18,9 @@ class UpdateCourse extends Component {
                 estimatedTime: "",
                 materialsNeeded: ""
             },
-            errors: null
+            userId: this.props.userId,
+            validationErrors: null,
+            courseOwner: ""
         };
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
@@ -28,6 +30,8 @@ class UpdateCourse extends Component {
     componentDidMount() {
 
         const { id } = this.props.match.params
+        let username = this.props.username
+        let password = this.props.password
 
         fetch(`http://localhost:5000/api/courses/${id}`)
             .then(response => response.json())
@@ -40,6 +44,17 @@ class UpdateCourse extends Component {
                         materialsNeeded: course.materialsNeeded
                     }
                 })
+
+                let headers = new Headers();
+                headers.append('Authorization', 'Basic ' + base64.encode(username + ":" + password));
+                fetch(`http://localhost:5000/api/users/${course.user}`, { headers: headers, method: 'GET' })
+                .then(res => res.json())
+                .then(user => {
+                    let firstName = (user.firstName) ? user.firstName : ""
+                    let lastName = (user.lastName) ? user.lastName : ""
+                    this.setState({courseOwner: firstName + " " + lastName})
+                })
+
             })
             .catch(error => {
                 console.log('Error fetching and parsing data', error);
@@ -62,8 +77,6 @@ class UpdateCourse extends Component {
 
     handleSubmit(event) {
 
-        console.log('submit')
-
         const { id } = this.props.match.params;
         let username = this.props.username
         let password = this.props.password
@@ -83,33 +96,52 @@ class UpdateCourse extends Component {
                 "user": this.props.userId
             })
         })
-            .then(res => res.json())
-            .then(res => {
-                if (!res.ok) {
-                    console.log(res.errors)
-                    this.setState({ errors: res.errors })
-                    throw Error(res.statusText);
-                }
-                else {
-                    // return response.json()  //we only get here if there is no error
-                    this.props.history.push(`/courses/${id}`);
-                    return res;
-                }
-            }).catch(error => {
-                console.log(error);
-            })
+        .then(res => {
+
+            if(res.status === 400 || res.status === 401) {
+
+                res.json().then(jsonRes => {
+                    this.setState({ validationErrors: jsonRes.errors })
+                    throw Error(jsonRes.statusText);
+                })
+                .catch(error => {
+                    console.log('Error fetching and parsing data', error);
+                });
+                
+            } else {
+
+                /* find course id just created */
+                let headers = new Headers();
+                headers.append('Authorization', 'Basic ' + base64.encode(username + ":" + password));
+                fetch('http://localhost:5000/api/courses', { headers: headers, method: 'GET' })
+                .then(response => response.json())
+                .then(courseData => { 
+
+                    let courseId = courseData.filter(course => 
+                        course.title === this.state.formValues.title &&
+                        course.description === this.state.formValues.description && 
+                        course.user === this.state.userId)[0]._id.toString()
+
+                    this.props.history.push(`/courses/${courseId}`)
+
+                }) 
+            }
+        })
+        .catch(error => {
+            console.log(error);
+        })
 
         event.preventDefault();
     }
 
     render() {
 
-        let errHeader = (this.state.errors) ?
+        let errHeader = (this.state.validationErrors) ?
             <h2 className="validation--errors--label">Validation errors</h2> : <h2></h2>
-        let errMsg = (this.state.errors) ? (
+        let errMsg = (this.state.validationErrors) ? (
             <div className="validation-errors">
                 <ul>
-                    {this.state.errors.map((err, index) => <li key={index}>{err}</li>)}
+                    {this.state.validationErrors.map((err, index) => <li key={index}>{err}</li>)}
                 </ul>
             </div>
         ) : <div></div>
@@ -138,7 +170,7 @@ class UpdateCourse extends Component {
                                         value={this.state.formValues.title || ''}
                                         onChange={this.handleChange}></input>
                                 </div>
-                                <p>By Anonymous</p>
+                                <p>By {this.state.courseOwner}</p>
                             </div>
                             <div className="course--description">
                                 <div>

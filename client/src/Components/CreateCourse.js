@@ -7,13 +7,13 @@ class CreateCourse extends Component {
     constructor(props) {
         super(props);
 
-        console.log(this.props)
         this.state = {
             formValues: {
                 title: "",
                 description: "",
                 estimatedTime: "",
                 materialsNeeded: "",
+                courseOwner: ""
             },
             userId: this.props.userId,
             validationErrors: null,
@@ -23,9 +23,26 @@ class CreateCourse extends Component {
         this.handleCancel = this.handleCancel.bind(this);
     }
 
+    componentDidMount() {
+        let username = this.props.username
+        let password = this.props.password
+        fetch("http://localhost:5000/api/users", {
+            method: "GET",
+            headers: {
+                'Authorization': 'Basic ' + base64.encode(username + ":" + password),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res=> res.json())
+        .then(user => {
+            let firstName = (user.firstName) ? user.firstName : ""
+            let lastName = (user.lastName) ? user.lastName : ""
+            this.setState({courseOwner: firstName + " " + lastName})
+        })
+    }
+
 
     handleChange(event) {
-        console.log(this.props)
         let name = event.target.name;
         let value = event.target.value;
         let formValues = this.state.formValues;
@@ -43,7 +60,7 @@ class CreateCourse extends Component {
         let username = this.props.username
         let password = this.props.password
 
-        fetch(`http://localhost:5000/api/courses`, {
+        fetch("http://localhost:5000/api/courses", {
             method: "POST",
             headers: {
                 'Authorization': 'Basic ' + base64.encode(username + ":" + password),
@@ -57,24 +74,40 @@ class CreateCourse extends Component {
                 materialsNeeded: this.state.formValues.materialsNeeded
             })
         })
-            .then(res => res.json())
-            .then(res => {
-                console.log(res)
-                if (res.errors) {
-                    console.log(res.errors)
-                    this.setState({ validationErrors: res.errors })
-                    throw Error(res.statusText);
-                }
+        .then(res => {
 
-                else {
-                    console.log(res)
-                    this.props.history.push(`/courses/${res._id}`);
-                    return res;
-                }
-            })
-            .catch(error => {
-                console.log(error);
-            });
+            if(res.status === 400 || res.status === 401) {
+
+                res.json().then(jsonRes => {
+                    this.setState({ validationErrors: jsonRes.errors })
+                    throw Error(jsonRes.statusText);
+                })
+                .catch(error => {
+                    console.log('Error fetching and parsing data', error);
+                });
+                
+            } else {
+
+                /* find course id just created */
+                let headers = new Headers();
+                headers.append('Authorization', 'Basic ' + base64.encode(username + ":" + password));
+                fetch('http://localhost:5000/api/courses', { headers: headers, method: 'GET' })
+                .then(response => response.json())
+                .then(courseData => { 
+                    
+                    let courseId = courseData.filter(course => 
+                        course.title === this.state.formValues.title &&
+                        course.description === this.state.formValues.description && 
+                        course.user === this.state.userId)[0]._id.toString()
+
+                    this.props.history.push(`/courses/${courseId}`)
+
+                }) 
+            }
+        })
+        .catch(error => {
+            console.log('Error fetching and parsing data', error);
+        });
 
         event.preventDefault();
     }
@@ -107,7 +140,7 @@ class CreateCourse extends Component {
                                 <h4 className="course--label">Course</h4>
                                 <div><input id="title" name="title" type="text" className="input-title course--title--input" placeholder="Course title..."
                                     value={this.state.formValues.title} onChange={this.handleChange}></input></div>
-                                <p>By Anonymous</p>
+                                <p>By {this.state.courseOwner}</p>
                             </div>
                             <div className="course--description">
                                 <div><textarea id="description" name="description" className="" placeholder="Course description..." value={this.state.formValues.description} onChange={this.handleChange}></textarea ></div>

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
+let base64 = require('base-64');
 
 class UserSignUp extends Component {
     constructor() {
@@ -36,7 +37,6 @@ class UserSignUp extends Component {
             this.setState({ "errors": errorMsgs })
         }
         else {
-
             fetch("http://localhost:5000/api/users", {
                 method: "POST",
                 body: JSON.stringify({
@@ -49,24 +49,35 @@ class UserSignUp extends Component {
                     'Content-Type': 'application/json'
                 }
             })
+            .then(() => {
+
+                let username = this.state.username
+                let password = this.state.password
+
+                let headers = new Headers();
+                headers.append('Authorization', 'Basic ' + base64.encode(username + ":" + password));
+                
+                fetch('http://localhost:5000/api/users', { headers: headers, method: 'GET' })
                 .then(response => response.json())
                 .then(userData => {
-                    // this.props.userStateUpdate(true, this.state.firstName)
+
                     if (userData.errors) {
                         this.setState({ "errors": userData.errors })
                     }
-
                     else {
-                        this.props.userAuthentication(true, this.state.firstName, this.state.username, this.state.password, userData._id)
+                        this.props.userAuthentication(true, userData.firstName, username, password, userData._id)
                         this.props.history.push('/');
                     }
-
 
                 })
                 .catch(error => {
                     console.log('Error fetching and parsing data', error);
                 });
 
+            })
+            .catch(error => {
+                console.log('Error fetching and parsing data', error);
+            });
         }
 
         event.preventDefault()

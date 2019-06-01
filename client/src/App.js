@@ -37,13 +37,8 @@ class App extends Component {
   }
 
   getCourses = (courses) => {
-    // console.log("courses HERE", courses)
     this.setState({ courses: courses })
   }
-
-  // updateUserLoggedIn(value, name) {
-  //   this.setState({ userLoggedIn: value, userName: name })
-  // }
 
   updateUserAuthentication(value, username, email, password, id) {
     this.setState({ userLoggedIn: value, userName: username, userEmail: email, userPassword: password, userId: id })
@@ -56,8 +51,6 @@ class App extends Component {
   }
 
   render() {
-
-    console.log("stateUserId", this.state.userId)
 
     return (
       <BrowserRouter>

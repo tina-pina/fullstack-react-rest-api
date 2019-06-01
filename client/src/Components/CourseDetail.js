@@ -11,7 +11,8 @@ class CourseDetail extends Component {
         this.state = {
             course: {},
             deleteErrors: null,
-            userId: this.props.userId
+            userId: this.props.userId,
+            courseOwner: ""
         }
         this.deleteHandler = this.deleteHandler.bind(this)
 
@@ -19,18 +20,27 @@ class CourseDetail extends Component {
 
     componentDidMount() {
         const { id } = this.props.match.params;
+        let username = this.props.username
+        let password = this.props.password
 
-        if (id !== "create") {
-            fetch(`http://localhost:5000/api/courses/${id}`)
-                .then(response => response.json())
-                .then(course => {
+        fetch(`http://localhost:5000/api/courses/${id}`)
+        .then(response => response.json())
+        .then(course => {
+            
+            this.setState({course: course})
+            
+            let headers = new Headers();
+            headers.append('Authorization', 'Basic ' + base64.encode(username + ":" + password));
+            fetch(`http://localhost:5000/api/users/${course.user}`, { headers: headers, method: 'GET' })
+            .then(res => res.json())
+            .then(user => {
+                let firstName = (user.firstName) ? user.firstName : ""
+                let lastName = (user.lastName) ? user.lastName : ""
+                this.setState({courseOwner: firstName + " " + lastName})
+            })
 
-                    this.setState({ course: course })
-                })
-                .catch(error => {
-                    console.log('Error fetching and parsing data', error);
-                });
-        }
+        })
+        .catch(error => console.log('Error fetching and parsing data', error));
     }
 
     deleteHandler(event) {
@@ -38,7 +48,6 @@ class CourseDetail extends Component {
         const { id } = this.props.match.params;
 
         let username = this.props.username
-        console.log(username)
         let password = this.props.password
 
         event.preventDefault();
@@ -50,21 +59,22 @@ class CourseDetail extends Component {
                 'Content-Type': 'application/json'
             }
         })
-            .then(response => response.json())
-            .then(res => {
-                console.log(res)
-                if (res.errors) {
-                    this.setState({ deleteErrors: res.errors })
-                    throw Error("remove failed")
-                }
-                else {
-                    this.props.history.push("/");
-                }
-            })
-            .catch(error => {
-                console.log('Error fetching and parsing data', error);
-            });
-
+        .then(res => {
+            if(res.status === 400 || res.status === 401) {
+                res.json().then(jsonRes => {
+                    this.setState({ deleteErrors: jsonRes.errors })
+                    throw Error(jsonRes.statusText);
+                })
+                .catch(error => {
+                    console.log('Error fetching and parsing data', error);
+                });
+            } else {
+                this.props.history.push("/");
+            }
+        })
+        .catch(error => {
+            console.log('Error fetching and parsing data', error);
+        });
     }
 
 
@@ -111,7 +121,7 @@ class CourseDetail extends Component {
                             <div className="course--header">
                                 <h4 className="course--label">Course</h4>
                                 <h3 className="course--title">{this.state.course.title}</h3>
-                                <p>By Anonymous</p>
+                                <p>By {this.state.courseOwner}</p>
                             </div>
                             <div className="course--description">
                                 <ReactMarkdown source={this.state.course.description} />
