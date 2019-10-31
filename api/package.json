@@ -21,7 +21,7 @@
     "express": "^4.16.4",
     "express-validator": "^5.3.1",
     "mongodb": "^3.1.8",
-    "mongoose": "^5.4.19",
+    "mongoose": "^5.7.5",
     "morgan": "^1.9.1",
     "promise.prototype.finally": "^3.1.0"
   }
