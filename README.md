@@ -1,1 +1,2 @@
-# fullstack-react-rest-api
+# fullstack-react-rest-api app 
+# final project Full Stack JavaScript Treehouse
